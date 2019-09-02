@@ -1,0 +1,154 @@
+version: "2"
+services:
+
+  postgres:
+    image: postgres:alpine
+    volumes: 
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./data/database:/tmp/database
+    environment:
+      - POSTGRES_PASSWORD:pooldetective
+    networks:
+      - pooldetective
+
+  blockobserverhost:
+    depends_on:
+      - postgres
+    image: pooldetective-blockobserverhost
+    restart: always
+    environment:
+      - PGSQL_CONNECTION=postgres://postgres:pooldetective@postgres/postgres?sslmode=disable
+      - LOGLEVEL=4
+    networks:
+      - pooldetective
+    ports:
+      - 52001:52001
+
+  coordinatorhost:
+    depends_on:
+      - postgres
+    image: pooldetective-coordinatorhost
+    restart: always
+    environment:
+      - PGSQL_CONNECTION=postgres://postgres:pooldetective@postgres/postgres?sslmode=disable
+      - LOGLEVEL=4
+    networks:
+      - pooldetective
+    ports:
+      - 52005:52005
+
+  stratumclienthost:
+    depends_on:
+      - postgres
+    image: pooldetective-stratumclienthost
+    restart: always
+    environment:
+      - PGSQL_CONNECTION=postgres://postgres:pooldetective@postgres/postgres?sslmode=disable
+      - LOGLEVEL=4
+    networks:
+      - pooldetective
+    ports:
+      - 52002:52002
+
+  pubsubhost:
+    depends_on:
+      - postgres
+    image: pooldetective-pubsubhost
+    restart: always
+    environment:
+      - LOGLEVEL=4
+    networks:
+      - pooldetective
+    ports:
+      - 52003:52003
+      - 52004:52004
+
+  coordinator:
+    depends_on:
+      - postgres
+      - coordinatorhost
+      - pubsubhost
+    image: pooldetective-coordinator
+    restart: always
+    environment:
+      - HUBHOST=10.211.142.1
+      - LOCATIONID=1
+      - LOGLEVEL=4
+      - DOCKER_API_VERSION=1.40
+      - IMAGE_PREFIX=pooldetective
+      - REGISTRY=
+      - PGSQL_CONNECTION=postgres://postgres:pooldetective@postgres/postgres?sslmode=disable
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - pooldetective
+
+  coind-btc:
+    image: pooldetective-coind-btc
+    restart: always
+    networks:
+      - pooldetective
+    volumes:
+      - ./data/coins/btc:/root/.bitcoin
+  
+  frontend:
+    image: pooldetective-frontend
+    restart: always
+    networks:
+      - pooldetective
+  
+  api:
+    image: pooldetective-api
+    restart: always
+    networks: 
+      - pooldetective
+    environment:
+      - PGSQL_CONNECTION=postgres://postgres:pooldetective@postgres/postgres?sslmode=disable
+      - APIKEYS=2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5aea
+
+  apidocs:
+    image: pooldetective-apidocs
+    restart: always
+    networks:
+      - pooldetective
+    
+  coind-ltc:
+    image: pooldetective-coind-ltc
+    restart: always
+    networks:
+      - pooldetective
+    volumes:
+      - ./data/coins/ltc:/root/.litecoin
+        
+  blockfetcher:
+    depends_on:
+      - postgres
+      - coind-btc
+      - coind-ltc
+    image: pooldetective-blockfetcher
+    networks:
+      - pooldetective
+    restart: always
+    environment:
+      - PGSQL_CONNECTION=postgres://postgres:pooldetective@postgres/postgres?sslmode=disable
+      - COINS=BTC-LTC
+      - BTC_NAME=Bitcoin
+      - BTC_COINBASE_STARTHEIGHT=99999999
+      - BTC_RPCHOST=coind-btc:8332
+      - BTC_RPCUSER=pooldetective
+      - BTC_RPCPASS=pooldetective
+      - LTC_NAME=Litecoin
+      - LTC_COINBASE_STARTHEIGHT=99999999
+      - LTC_RPCHOST=coind-ltc:9332
+      - LTC_RPCUSER=pooldetective
+      - LTC_RPCPASS=pooldetective
+      - LOGLEVEL=4
+
+
+networks:
+  pooldetective:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.211.142.0/24
+          gateway: 10.211.142.1

@@ -1,0 +1,26 @@
+# build stage
+FROM ruby:2.6.5 AS build-env
+
+RUN apt-get update && apt-get install -y nodejs git \
+&& apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp
+RUN git clone https://github.com/slatedocs/slate 
+RUN rm -rf /tmp/slate/source
+
+RUN mkdir -p /usr/src/app
+RUN cp /tmp/slate/Gemfile /usr/src/app/
+RUN cp /tmp/slate/Gemfile.lock /usr/src/app/
+WORKDIR /usr/src/app
+
+RUN gem install bundler --version '2.0.2'
+RUN bundle install
+
+RUN mv /tmp/slate/* /usr/src/app
+ADD ./apidocs /usr/src/app/source
+
+RUN bundle exec middleman build --clean --verbose
+
+# final stage
+FROM nginx:alpine
+COPY --from=build-env /usr/src/app/build /usr/share/nginx/html

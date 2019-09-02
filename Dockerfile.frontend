@@ -1,0 +1,16 @@
+FROM node:10 as nodebuild
+RUN mkdir /tmp/build
+COPY frontend/package.json /tmp/build/package.json
+COPY frontend/package-lock.json /tmp/build/package-lock.json
+WORKDIR /tmp/build
+RUN npm install
+COPY frontend/src/ /tmp/build/src/
+COPY frontend/public/ /tmp/build/public/
+RUN mkdir /tmp/output
+RUN npm install && npm run build
+RUN mv build /tmp/output/
+
+FROM nginx:alpine
+COPY --from=nodebuild /tmp/output/build /var/www/html
+
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf 

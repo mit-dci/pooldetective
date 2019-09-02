@@ -1,0 +1,15 @@
+# build stage
+FROM registry.blocksource.nl/pooldetective-vnext-base AS build-env
+RUN rm -rf /go/src/github.com/docker/docker/vendor/github.com/docker/go-connections
+RUN mkdir -p /go/src/github.com/mit-dci/pooldetective/
+ADD . /go/src/github.com/mit-dci/pooldetective/
+WORKDIR /go/src/github.com/mit-dci/pooldetective/coordinator
+RUN go get ./...
+RUN go build -o coordinator
+
+# final stage
+FROM alpine
+RUN apk --no-cache add ca-certificates libzmq
+WORKDIR /app
+COPY --from=build-env /go/src/github.com/mit-dci/pooldetective/coordinator/coordinator /app/
+ENTRYPOINT ./coordinator

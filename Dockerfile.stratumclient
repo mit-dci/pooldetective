@@ -1,0 +1,14 @@
+# build stage
+FROM registry.blocksource.nl/pooldetective-vnext-base AS build-env
+RUN mkdir -p /go/src/github.com/mit-dci/pooldetective/
+ADD . /go/src/github.com/mit-dci/pooldetective/
+WORKDIR /go/src/github.com/mit-dci/pooldetective/stratum/cmd/client
+RUN go get ./...
+RUN go build -o stratum-client
+
+# final stage
+FROM alpine
+RUN apk --no-cache add ca-certificates libzmq
+WORKDIR /app
+COPY --from=build-env /go/src/github.com/mit-dci/pooldetective/stratum/cmd/client/stratum-client /app/
+ENTRYPOINT ./stratum-client

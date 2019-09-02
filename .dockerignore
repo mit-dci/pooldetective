@@ -1,0 +1,17 @@
+hub/cmd/blockobserverhost/blockobserverhost
+hub/cmd/stratumclienthost/stratumclienthost
+stratum/cmd/client/client
+stratum/cmd/server/server
+*.log
+blockobserver/cmd/observer/observer
+blockfetcher/blockfetcher
+api/api
+api/cmd/testclient/testclient
+pooldetective/config
+pooldetective/rpcblockfetcher/rpcblockfetcher
+docker-coindaemons
+notes
+paper
+queries
+frontend/node_modules
+localdocker/data
