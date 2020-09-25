@@ -1,6 +1,6 @@
 # build stage
 FROM golang:alpine
-RUN apk --no-cache add bash openssh-client ca-certificates build-base git bzr mercurial gcc musl-dev pkgconfig zeromq-dev
+RUN apk --no-cache add bash openssh-client ca-certificates build-base git mercurial gcc musl-dev pkgconfig zeromq-dev
 RUN go get github.com/btcsuite/btcd/chaincfg/chainhash
 RUN go get github.com/lib/pq
 RUN go get github.com/mit-dci/lit/...
