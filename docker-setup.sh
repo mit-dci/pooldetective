@@ -2,7 +2,7 @@
 
 set -e 
 
-trap "Something failed while doing the setup. View docker-setup.log for more details." ERR
+trap "echo Something failed while doing the setup. View docker-setup.log for more details." ERR
 
 if [ -d "localdocker/data" ]; then
     printf "\n\n========\n!!! WARNING\n=======\n\nThere is already a data folder in the localdocker subfolder, which indicates you have already set up the local docker environment. If you want to do a re-setup - ensure the environment is stopped (run [docker-compose down] when in the localdocker folder) and then remove the data folder (you will require root privileges for this). After you've cleaned the data folder up, re-run docker-setup.sh\n\n"
