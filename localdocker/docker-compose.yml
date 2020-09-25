@@ -7,7 +7,7 @@ services:
       - ./data/postgres:/var/lib/postgresql/data
       - ./data/database:/tmp/database
     environment:
-      - POSTGRES_PASSWORD:pooldetective
+      - POSTGRES_PASSWORD=pooldetective
     networks:
       - pooldetective
 
