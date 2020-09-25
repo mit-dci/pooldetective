@@ -1,5 +1,5 @@
 # build stage
-FROM registry.blocksource.nl/pooldetective-vnext-base AS build-env
+FROM pooldetective-base AS build-env
 RUN mkdir -p /go/src/github.com/mit-dci/pooldetective/
 ADD . /go/src/github.com/mit-dci/pooldetective/
 WORKDIR /go/src/github.com/mit-dci/pooldetective/blockobserver/cmd/observer
