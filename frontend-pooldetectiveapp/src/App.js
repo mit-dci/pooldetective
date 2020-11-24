@@ -50,10 +50,14 @@ class App extends React.Component {
       locations: [],
       poolCoins: [],
       wrongwork: [],
+      wrongWorkStart: new Date()-8*86400000,
+      wrongWorkEnd: new Date()-86400000,
       coinTicker: "",
       coinId: -1,
     }
     this.toggle = this.toggle.bind(this);
+    this.wrongWorkLater = this.wrongWorkLater.bind(this);
+    this.wrongWorkEarlier = this.wrongWorkEarlier.bind(this);
 
     this.ws = new WebSocket("wss://pooldetective.org/api/ws");
   
@@ -87,6 +91,25 @@ class App extends React.Component {
     this.ws.onmessage = this.ws.onmessage.bind(this);
   }
   
+wrongWorkLater() {
+  let wrongWorkStart = this.state.wrongWorkStart+7*86400000
+  if(wrongWorkStart > new Date()-8*86400000) {
+    wrongWorkStart = new Date()-8*86400000
+  }
+
+  let wrongWorkEnd = this.state.wrongWorkEnd+7*86400000
+  if(wrongWorkEnd > new Date()-1*86400000) {
+    wrongWorkEnd = new Date()-1*86400000
+  }
+  this.setState({wrongWorkStart,wrongWorkEnd})
+}
+
+wrongWorkEarlier() {
+  let wrongWorkStart = this.state.wrongWorkStart-7*86400000
+  let wrongWorkEnd = this.state.wrongWorkEnd-7*86400000
+  this.setState({wrongWorkStart,wrongWorkEnd})
+}
+
   componentDidMount() {
     fetch("https://pooldetective.org/api/public/coins").then(r=>r.json()).then((r)=>{
       this.setState({coins:r.sort(nameSort)})
@@ -109,8 +132,11 @@ class App extends React.Component {
       locations = locations.sort(nameSort)
       this.setState({pools:pools, poolCoins: coins, locations : locations, coinId: coins[0].id})}
     );
-    fetch("https://pooldetective.org/api/public/wrongwork/lastweek").then(r=>r.json()).then((r)=>{
-      this.setState({wrongwork:r})
+    fetch("https://pooldetective.org/api/public/wrongwork/all").then(r=>r.json()).then((r)=>{
+      this.setState({wrongwork:r.map((ww)=> {
+        ww.observedOn = new Date(ww.observedOn);
+        return ww;
+      })})
     });
   }
 
@@ -218,7 +244,16 @@ class App extends React.Component {
                           <p>
                             This table shows when the pools we monitor sent us unexpected work. This is work that builds on top of a previous block that we matched to a different blockchain.
                             <br/>&nbsp;<br/>
-                            This table covers the data from the past 7 days
+                          </p>
+
+                          <p>
+                            <Container>
+                              <Row>
+                                <Col xs={2}><Button color="link" onClick={this.wrongWorkEarlier}>Earlier</Button></Col>
+                                <Col><Moment format="LL">{this.state.wrongWorkStart}</Moment> - <Moment format="LL">{this.state.wrongWorkEnd}</Moment></Col>
+                                <Col xs={2}><Button color="link" onClick={this.wrongWorkLater}>Later</Button></Col>
+                              </Row>
+                            </Container>
                           </p>
                         </center>
                         <Container>
@@ -237,7 +272,7 @@ class App extends React.Component {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {this.state.wrongwork.filter((ww) => ww.expectedCoinId === selectedCoin.id).map((ww) => <tr>
+                                  {this.state.wrongwork.filter((ww) => ww.observedOn.valueOf() >= this.state.wrongWorkStart.valueOf() && ww.observedOn.valueOf() < this.state.wrongWorkEnd.valueOf() && ww.expectedCoinId === selectedCoin.id).map((ww) => <tr>
                                     <td><Moment format="L">{ww.observedOn}</Moment></td>
                                     <td>{pools.find((p) => p.id === ww.poolId).name}</td>
                                     <td>{ww.location}</td>

@@ -81,6 +81,36 @@ func wrongWorkLastWeekHandler(w http.ResponseWriter, r *http.Request) {
 	writeJson(w, wrongWorkLastWeekHandlerCache)
 }
 
+var wrongWorkAllHandlerCache []WrongWorkResult
+var wrongWorkAllHandlerCacheLock sync.Mutex = sync.Mutex{}
+var wrongWorkAllHandlerCacheLastBuilt time.Time = time.Now().Add(-24 * time.Hour)
+
+func wrongWorkAllHandler(w http.ResponseWriter, r *http.Request) {
+	if wrongWorkAllHandlerCacheLastBuilt.Day() != time.Now().Day() {
+		wrongWorkAllHandlerCacheLock.Lock()
+		if wrongWorkAllHandlerCacheLastBuilt.Day() != time.Now().Day() {
+			results := []WrongWorkResult{}
+			t := time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)
+			for t.Before(time.Now()) {
+				resultsForDay, err := wrongWorkOnDay(t, false)
+				if err != nil {
+					logging.Errorf("Error: %s", err.Error())
+					http.Error(w, "Internal server error", 500)
+					wrongWorkAllHandlerCacheLock.Unlock()
+					return
+				}
+				results = append(results, resultsForDay...)
+				t = t.Add(24 * time.Hour)
+			}
+			wrongWorkAllHandlerCache = results
+			wrongWorkAllHandlerCacheLastBuilt = time.Now()
+		}
+		wrongWorkAllHandlerCacheLock.Unlock()
+	}
+
+	writeJson(w, wrongWorkAllHandlerCache)
+}
+
 func wrongWorkOnDateHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	dateString := params["date"]

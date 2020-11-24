@@ -51,6 +51,7 @@ func DefineRoutes(r *mux.Router, passedDb *sql.DB) {
 	r.Handle("/public/pools", anonLimiterMiddleware.Handler(http.HandlerFunc(poolsHandler)))
 	r.Handle("/public/wrongwork/yesterday", anonLimiterMiddleware.Handler(http.HandlerFunc(wrongWorkYesterdayHandler)))
 	r.Handle("/public/wrongwork/lastweek", anonLimiterMiddleware.Handler(http.HandlerFunc(wrongWorkLastWeekHandler)))
+	r.Handle("/public/wrongwork/all", anonLimiterMiddleware.Handler(http.HandlerFunc(wrongWorkAllHandler)))
 
 	r.Handle("/public/unresolvedwork/yesterday", anonLimiterMiddleware.Handler(http.HandlerFunc(unresolvedWorkYesterdayHandler)))
 	r.Handle("/public/reorgs", anonLimiterMiddleware.Handler(http.HandlerFunc(reorgsHandler)))
