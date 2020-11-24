@@ -1,0 +1,23 @@
+diff --git a/wire/blockheader.go b/wire/blockheader.go
+index c08bf73d..7a5b5bca 100644
+--- a/wire/blockheader.go
++++ b/wire/blockheader.go
+@@ -10,6 +10,7 @@ import (
+ 	"time"
+ 
+ 	"github.com/btcsuite/btcd/chaincfg/chainhash"
++	xvgchainhash "github.com/vergecurrency/xvgd/chaincfg/chainhash"
+ )
+ 
+ // MaxBlockHeaderPayload is the maximum number of bytes a block header can be.
+@@ -53,7 +54,9 @@ func (h *BlockHeader) BlockHash() chainhash.Hash {
+ 	buf := bytes.NewBuffer(make([]byte, 0, MaxBlockHeaderPayload))
+ 	_ = writeBlockHeader(buf, 0, h)
+ 
+-	return chainhash.ScryptHash(buf.Bytes())
++	xh := xvgchainhash.ScryptHash(buf.Bytes())
++	ch, _ := chainhash.NewHash(xh.CloneBytes())
++	return *ch
+ }
+ 
+ // BtcDecode decodes r using the bitcoin protocol encoding into the receiver.

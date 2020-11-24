@@ -37,6 +37,9 @@ func DefineRoutes(r *mux.Router, passedDb *sql.DB) {
 	authLimiter := limiter.New(authStore, authRate)
 	authLimiterMiddleware := stdlib.NewMiddleware(authLimiter)
 
+	// Websocket
+	r.HandleFunc("/ws", wsHandler)
+
 	// Public API
 	r.Handle("/public/coins", anonLimiterMiddleware.Handler(http.HandlerFunc(coinsHandler)))
 	r.Handle("/public/coins/{coinID}/pools", anonLimiterMiddleware.Handler(http.HandlerFunc(coinPoolsHandler)))
@@ -47,7 +50,11 @@ func DefineRoutes(r *mux.Router, passedDb *sql.DB) {
 	r.Handle("/public/pools/{poolID}", anonLimiterMiddleware.Handler(http.HandlerFunc(poolHandler)))
 	r.Handle("/public/pools", anonLimiterMiddleware.Handler(http.HandlerFunc(poolsHandler)))
 	r.Handle("/public/wrongwork/yesterday", anonLimiterMiddleware.Handler(http.HandlerFunc(wrongWorkYesterdayHandler)))
+	r.Handle("/public/wrongwork/lastweek", anonLimiterMiddleware.Handler(http.HandlerFunc(wrongWorkLastWeekHandler)))
+
 	r.Handle("/public/unresolvedwork/yesterday", anonLimiterMiddleware.Handler(http.HandlerFunc(unresolvedWorkYesterdayHandler)))
+	r.Handle("/public/reorgs", anonLimiterMiddleware.Handler(http.HandlerFunc(reorgsHandler)))
+	r.Handle("/public/reorg/{reorgID}", anonLimiterMiddleware.Handler(http.HandlerFunc(reorgHandler)))
 
 	// Authenticated API
 
@@ -64,7 +71,9 @@ func DefineRoutes(r *mux.Router, passedDb *sql.DB) {
 	r.Handle("/pools/{poolID}/coins", authLimiterMiddleware.Handler(auth.Auth(poolCoinsHandler)))
 	r.Handle("/pools/{poolID}", authLimiterMiddleware.Handler(auth.Auth(poolHandler)))
 	r.Handle("/pools", authLimiterMiddleware.Handler(auth.Auth(poolsHandler)))
+	r.Handle("/reorgs", authLimiterMiddleware.Handler(auth.Auth(reorgsHandler)))
 	r.Handle("/wrongwork/yesterday", authLimiterMiddleware.Handler(auth.Auth(wrongWorkYesterdayHandler)))
+	r.Handle("/wrongwork/lastweek", authLimiterMiddleware.Handler(auth.Auth(wrongWorkLastWeekHandler)))
 	r.Handle("/wrongwork/date/{date}", authLimiterMiddleware.Handler(auth.Auth(wrongWorkOnDateHandler)))
 	r.Handle("/unresolvedwork/yesterday", authLimiterMiddleware.Handler(auth.Auth(unresolvedWorkYesterdayHandler)))
 	r.Handle("/unresolvedwork/date/{date}", authLimiterMiddleware.Handler(auth.Auth(unresolvedWorkOnDateHandler)))

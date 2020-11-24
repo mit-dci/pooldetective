@@ -22,6 +22,7 @@ type GetBlockHeaderVerboseResult struct {
 	//Nonce         BitcoinNonce `json:"nonce"`
 	Bits         string  `json:"bits"`
 	Difficulty   float64 `json:"difficulty"`
+	ChainWork    string  `json:"chainwork,omitempty"`
 	PreviousHash string  `json:"previousblockhash,omitempty"`
 	NextHash     string  `json:"nextblockhash,omitempty"`
 }
@@ -44,6 +45,7 @@ type GetBlockVerboseResult struct {
 	Time          int64         `json:"time"`
 	Bits          string        `json:"bits"`
 	Difficulty    float64       `json:"difficulty"`
+	ChainWork     string        `json:"chainwork,omitempty"`
 	PreviousHash  string        `json:"previousblockhash"`
 	NextHash      string        `json:"nextblockhash,omitempty"`
 	//Nonce         uint32        `json:"nonce"`

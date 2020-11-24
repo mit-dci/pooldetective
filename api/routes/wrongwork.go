@@ -15,7 +15,9 @@ type WrongWorkResult struct {
 	PoolID        int       `json:"poolId"`
 	CoinID        int       `json:"expectedCoinId"`
 	CoinName      string    `json:"expectedCoinName"`
+	ObserverID    int       `json:"poolObserverID"`
 	StratumHost   string    `json:"stratumHost"`
+	LocationID    int       `json:"locationID"`
 	LocationName  string    `json:"location"`
 	WrongCoinID   int       `json:"wrongCoinId"`
 	WrongCoinName string    `json:"wrongCoinName"`
@@ -47,6 +49,36 @@ func wrongWorkYesterdayHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJson(w, wrongWorkYesterdayHandlerCache)
+}
+
+var wrongWorkLastWeekHandlerCache []WrongWorkResult
+var wrongWorkLastWeekHandlerCacheLock sync.Mutex = sync.Mutex{}
+var wrongWorkLastWeekHandlerCacheLastBuilt time.Time = time.Now().Add(-24 * time.Hour)
+
+func wrongWorkLastWeekHandler(w http.ResponseWriter, r *http.Request) {
+	if wrongWorkLastWeekHandlerCacheLastBuilt.Day() != time.Now().Day() {
+		wrongWorkLastWeekHandlerCacheLock.Lock()
+		if wrongWorkLastWeekHandlerCacheLastBuilt.Day() != time.Now().Day() {
+			results := []WrongWorkResult{}
+			t := time.Now().Add(-24 * 7 * time.Hour)
+			for t.Day() != time.Now().Day() {
+				resultsForDay, err := wrongWorkOnDay(t, false)
+				if err != nil {
+					logging.Errorf("Error: %s", err.Error())
+					http.Error(w, "Internal server error", 500)
+					wrongWorkYesterdayHandlerCacheLock.Unlock()
+					return
+				}
+				results = append(results, resultsForDay...)
+				t = t.Add(24 * time.Hour)
+			}
+			wrongWorkLastWeekHandlerCache = results
+			wrongWorkLastWeekHandlerCacheLastBuilt = time.Now()
+		}
+		wrongWorkLastWeekHandlerCacheLock.Unlock()
+	}
+
+	writeJson(w, wrongWorkLastWeekHandlerCache)
 }
 
 func wrongWorkOnDateHandler(w http.ResponseWriter, r *http.Request) {
@@ -117,6 +149,8 @@ func wrongWorkOnDay(date time.Time, unresolved bool) ([]WrongWorkResult, error) 
 					awk.observed_on,
 					awk.pool_id, 
 					l.name, 
+					l.id,
+					po.id,
 					po.stratum_host,
 					awk.expected_coin_id,
 					ec.name,
@@ -148,7 +182,7 @@ func wrongWorkOnDay(date time.Time, unresolved bool) ([]WrongWorkResult, error) 
 	}
 	for rows.Next() {
 		var res WrongWorkResult
-		err := rows.Scan(&res.ObservedOn, &res.PoolID, &res.LocationName, &res.StratumHost, &res.CoinID, &res.CoinName, &res.WrongCoinID, &res.WrongCoinName, &res.TotalJobs, &res.WrongJobs, &res.TotalTime, &res.WrongTime)
+		err := rows.Scan(&res.ObservedOn, &res.PoolID, &res.LocationName, &res.LocationID, &res.ObserverID, &res.StratumHost, &res.CoinID, &res.CoinName, &res.WrongCoinID, &res.WrongCoinName, &res.TotalJobs, &res.WrongJobs, &res.TotalTime, &res.WrongTime)
 		if err != nil {
 			return results, err
 		}

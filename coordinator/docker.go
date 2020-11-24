@@ -155,6 +155,8 @@ func checkBlockObserver() error {
 			fmt.Sprintf("LOCATIONID=%d", locationID),
 			"LOGLEVEL=4",
 			fmt.Sprintf("HUBHOST=%s", os.Getenv("HUBHOST")),
+			fmt.Sprintf("COMM_ENC=%s", os.Getenv("COMM_ENC")),
+			fmt.Sprintf("COMM_ENC_KEY=%s", os.Getenv("COMM_ENC_KEY")),
 		}
 
 		c, err := dockerClient.ContainerCreate(context.Background(), containerConfig, nil, nil, name)
@@ -229,6 +231,8 @@ func checkStratumClient(poolObserverID int) error {
 			fmt.Sprintf("POOLOBSERVERID=%d", poolObserverID),
 			"LOGLEVEL=4",
 			fmt.Sprintf("HUBHOST=%s", os.Getenv("HUBHOST")),
+			fmt.Sprintf("COMM_ENC=%s", os.Getenv("COMM_ENC")),
+			fmt.Sprintf("COMM_ENC_KEY=%s", os.Getenv("COMM_ENC_KEY")),
 		}
 
 		c, err := dockerClient.ContainerCreate(context.Background(), containerConfig, nil, nil, name)
@@ -330,6 +334,8 @@ func checkStratumServer(algorithmID, port, stratumProtocol int) error {
 			"LOGLEVEL=4",
 			fmt.Sprintf("HUBHOST=%s", os.Getenv("HUBHOST")),
 			fmt.Sprintf("PGSQL_CONNECTION=%s", os.Getenv("PGSQL_CONNECTION")),
+			fmt.Sprintf("COMM_ENC=%s", os.Getenv("COMM_ENC")),
+			fmt.Sprintf("COMM_ENC_KEY=%s", os.Getenv("COMM_ENC_KEY")),
 		}
 		containerConfig.ExposedPorts = nat.PortSet{
 			nat.Port(fmt.Sprintf("%d/tcp", port)): struct{}{},

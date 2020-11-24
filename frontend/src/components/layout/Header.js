@@ -112,6 +112,9 @@ const Header = ({
                       navPosition && `header-nav-${navPosition}`
                     )}>
                     <li>
+                      <a target="_blank" rel="noreferer noopener" href="https://app.pooldetective.org/" onClick={closeMenu}>App</a>
+                    </li>
+                    <li>
                       <a target="_blank" rel="noreferer noopener" href="https://pooldetective.org/api/docs/" onClick={closeMenu}>API Documentation</a>
                     </li>
                   </ul>

@@ -1,0 +1,20 @@
+# build stage
+FROM registry.blocksource.nl/pooldetective-vnext-base AS build-env
+RUN mkdir -p /go/src/github.com/vergecurrency
+WORKDIR /go/src/github.com/vergecurrency
+RUN git clone https://github.com/vergecurrency/xvgd 
+COPY ./reorganalyzer/xvgd-wire-blockheader.patch /go/src/github.com/vergecurrency/xvgd/
+WORKDIR /go/src/github.com/vergecurrency/xvgd 
+RUN git apply xvgd-wire-blockheader.patch
+RUN mkdir -p /go/src/github.com/mit-dci/pooldetective/
+ADD . /go/src/github.com/mit-dci/pooldetective/
+WORKDIR /go/src/github.com/mit-dci/pooldetective/reorganalyzer
+RUN go get ./...
+RUN go build -o reorganalyzer
+
+# final stage
+FROM alpine
+RUN apk --no-cache add ca-certificates libzmq
+WORKDIR /app
+COPY --from=build-env /go/src/github.com/mit-dci/pooldetective/reorganalyzer/reorganalyzer /app/
+ENTRYPOINT ./reorganalyzer

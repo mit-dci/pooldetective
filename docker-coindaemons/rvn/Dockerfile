@@ -2,8 +2,8 @@
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
 
-ENV FILENAME raven-3.3.2.0-x86_64-linux-gnu.tar.gz
-ENV DOWNLOAD_URL https://github.com/RavenProject/Ravencoin/releases/download/v3.3.2/${FILENAME}
+ENV FILENAME raven-4.3.1.0-x86_64-linux-gnu.tar.gz
+ENV DOWNLOAD_URL https://github.com/RavenProject/Ravencoin/releases/download/v4.3.1/${FILENAME}
 
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get -y install wget && mkdir /download \
   && tar -xvf $FILENAME \
   && rm -rf $FILENAME \
   && mkdir /root/.raven \
-  && mv /download/raven-3.3.2.0/bin/* /usr/local/bin/ 
+  && mv /download/raven-4.3.1.0/bin/* /usr/local/bin/ 
 
 EXPOSE 8766
 

@@ -2,7 +2,7 @@
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
 
-ENV FILENAME zcash-3.0.0-linux64-debian-stretch.tar.gz
+ENV FILENAME zcash-4.1.0-linux64-debian-stretch.tar.gz
 ENV DOWNLOAD_URL https://z.cash/downloads/${FILENAME}
 
 # Some of this was unabashadly yanked from
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get -y install wget && mkdir /download \
   && tar -xvf $FILENAME \
   && rm -rf $FILENAME \
   && mkdir /root/.zcash \
-  && mv /download/zcash-3.0.0/bin/* /usr/local/bin/ 
+  && mv /download/zcash-4.1.0/bin/* /usr/local/bin/ 
 
 EXPOSE 8232
 

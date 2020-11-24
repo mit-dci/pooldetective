@@ -13,5 +13,10 @@ docker-coindaemons
 notes
 paper
 queries
+frontend-pooldetectiveapp/node_modules
+frontend-reorgtracker/node_modules
 frontend/node_modules
 localdocker/data
+reorgtracker/blocks
+reorganalyzer/blocks
+reorgimportblocks/blocks

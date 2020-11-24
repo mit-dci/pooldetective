@@ -4,8 +4,8 @@ LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
 
 ARG GLIBC_VERSION=2.29-r0
 
-ENV FILENAME bitcoin-abc-0.20.9-x86_64-linux-gnu.tar.gz
-ENV DOWNLOAD_URL https://download.bitcoinabc.org/0.20.9/linux/bitcoin-abc-0.20.9-x86_64-linux-gnu.tar.gz
+ENV FILENAME bitcoin-cash-node-22.1.0-x86_64-linux-gnu.tar.gz
+ENV DOWNLOAD_URL https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v22.1.0/$FILENAME
 
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile
@@ -22,8 +22,8 @@ RUN apk update \
   && wget $DOWNLOAD_URL \
   && tar xzvf $FILENAME \
   && mkdir /root/.bitcoin \
-  && mv /bitcoin-abc-0.20.9/bin/* /usr/local/bin/ \
-  && rm -rf /bitcoin-abc-0.20.9/ \
+  && mv /bitcoin-cash-node-22.1.0/bin/* /usr/local/bin/ \
+  && rm -rf /bitcoin-cash-node-22.1.0/ \
   && rm -rf $FILENAME \
   && apk del tar wget ca-certificates
 

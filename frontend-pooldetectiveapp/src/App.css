@@ -1,0 +1,64 @@
+tr.doubleSpendRow {
+  cursor: pointer;
+}
+
+tr.doubleSpendRow:hover, tr.doubleSpendRow:hover>td {
+  background-color: #007bff;
+  color: white;
+}
+
+table.reorgDetail>tbody>tr>td:first-child {
+  font-weight: bold;
+}
+
+table.doubleSpendTransaction>tbody>tr>td { 
+  text-overflow:ellipsis;
+  overflow:hidden;
+  white-space: nowrap;
+}
+
+table.doubleSpendTransaction>tbody>tr>td:nth-child(1), table.doubleSpendTransaction>tbody>tr>td:nth-child(4)  {
+  width: 15%
+}
+
+table.doubleSpendTransaction>tbody>tr>td:nth-child(2), table.doubleSpendTransaction>tbody>tr>td:nth-child(3)  {
+  width: 35%
+}
+
+@keyframes highlightGood {
+  from { 
+    background-color: #50ff50;
+  } 
+  to {
+    background-color: #cdffcc;
+  }
+}
+
+@keyframes highlightBad {
+  from { 
+    background-color: #ff5050;
+  } 
+  to {
+    background-color: #ffcccb;
+  }
+}
+
+td.goodHighlight {
+  animation-name: highlightGood;
+  animation-duration: 1.5s;
+  background-color: #cdffcc;
+}
+
+td.good {
+  background-color: #cdffcc;
+}
+
+td.badHighlight {
+  animation-name: highlightBad;
+  animation-duration: 1.5s;
+  background-color: #ffcccb;
+}
+
+td.bad {
+  background-color: #ffcccb
+}

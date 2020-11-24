@@ -21,3 +21,12 @@ blockfetcher/bulk*
 docker-coindaemons/arrr/komodo*
 docker-coindaemons/kmd/komodo*
 blockfetcher/*.sh
+*.blk
+coin-pricehistory/coin-pricehistory
+reorgblocks.tar.gz
+reorgtracker/reorgtracker
+reorganalyzer/reorganalyzer
+nicehash-pricehistory/nicehash-pricehistory
+reorgchainwork/reorgchainwork
+reorgimport/reorgimport
+reorgimportblocks/reorgimportblocks

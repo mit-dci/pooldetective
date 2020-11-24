@@ -4,6 +4,7 @@ LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install libdb5.3 libdb5.3++  libdb5.3-dev libdb5.3++-dev libssl1.0-dev libevent-dev  libboost-all-dev git apt-utils build-essential libtool autotools-dev automake pkg-config bsdmainutils curl software-properties-common cmake libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python3-pip imagemagick
 RUN mkdir /sources && cd /sources && git clone https://github.com/Nasdacoin/Nasdacoin
+COPY rpcblockchain.cpp /sources/Nasdacoin/src/
 WORKDIR /sources/Nasdacoin/src
 RUN make -j8 -f makefile.unix
 

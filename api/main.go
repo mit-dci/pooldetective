@@ -36,6 +36,9 @@ func main() {
 	})
 
 	routes.DefineRoutes(r, db)
+	routes.CachePoolData()
+	go routes.UpdatePools()
+	go routes.UpdateCoins()
 
 	srv := &http.Server{
 		Handler: corsOpt.Handler(r),

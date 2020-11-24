@@ -83,3 +83,11 @@ func RevHash(hash string) string {
 	hashBytes, _ := hex.DecodeString(hash)
 	return hex.EncodeToString(RevHashBytes(hashBytes))
 }
+
+func HashToString(h []byte) string {
+	hsh, err := chainhash.NewHash(h)
+	if err != nil {
+		return ""
+	}
+	return hsh.String()
+}

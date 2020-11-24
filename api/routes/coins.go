@@ -2,44 +2,65 @@ package routes
 
 import (
 	"net/http"
-	"sync"
 	"time"
+
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 
+var coinsHandlerCache []*CoinResult = []*CoinResult{}
+
 type CoinResult struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID               int64     `json:"id"`
+	Name             string    `json:"name"`
+	Ticker           string    `json:"ticker"`
+	BestHash         string    `json:"bestHash"`
+	BestHashObserved time.Time `json:"bestHashObserved"`
 }
 
-var coinsHandlerCache []CoinResult
-var coinsHandlerCacheLock sync.Mutex = sync.Mutex{}
-var coinsHandlerCacheLastBuilt time.Time = time.Now().Add(-24 * time.Hour)
-
-func coinsHandler(w http.ResponseWriter, r *http.Request) {
-	if time.Now().Sub(coinsHandlerCacheLastBuilt).Minutes() > 15 {
-		coinsHandlerCacheLock.Lock()
-		if time.Now().Sub(coinsHandlerCacheLastBuilt).Minutes() > 15 {
-			rows, err := db.Query("SELECT id, name FROM coins")
-			if err != nil {
-				http.Error(w, err.Error(), 500)
-				return
-			}
-			result := []CoinResult{}
+func UpdateCoins() {
+	for {
+		rows, err := db.Query("SELECT id, name, ticker, besthash, besthashobserved FROM coins")
+		if err == nil {
 			for rows.Next() {
 				var coinID int64
 				var coinName string
-				err := rows.Scan(&coinID, &coinName)
+				var coinTicker string
+				var bestHash []byte
+				var bestHashObserved time.Time
+				err := rows.Scan(&coinID, &coinName, &coinTicker, &bestHash, &bestHashObserved)
 				if err != nil {
-					http.Error(w, err.Error(), 500)
-					return
+					break
 				}
-				result = append(result, CoinResult{ID: coinID, Name: coinName})
+
+				bestHashString := ""
+				h, err := chainhash.NewHash(bestHash)
+				if err == nil {
+					bestHashString = h.String()
+				}
+
+				idx := -1
+				for i, c := range coinsHandlerCache {
+					if c.ID == coinID {
+						idx = i
+						break
+					}
+				}
+				if idx == -1 {
+					coinsHandlerCache = append(coinsHandlerCache, &CoinResult{ID: coinID, Name: coinName, Ticker: coinTicker, BestHash: bestHashString, BestHashObserved: bestHashObserved})
+				} else {
+					if coinsHandlerCache[idx].BestHash != bestHashString {
+						coinsHandlerCache[idx].BestHash = bestHashString
+						coinsHandlerCache[idx].BestHashObserved = bestHashObserved
+						publishToWebsockets(websocketMessage{Type: "c", Msg: coinsHandlerCache[idx]})
+					}
+				}
 			}
-			coinsHandlerCache = result
-			coinsHandlerCacheLastBuilt = time.Now()
 		}
-		coinsHandlerCacheLock.Unlock()
+		time.Sleep(time.Second * 2)
 	}
+}
+
+func coinsHandler(w http.ResponseWriter, r *http.Request) {
 
 	writeJson(w, coinsHandlerCache)
 }
