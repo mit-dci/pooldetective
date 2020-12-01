@@ -10,7 +10,6 @@ import './App.css';
 import {Button, Form, FormGroup, Label, Input, Table, Container, Row, Col, NavLink as RSNavLink, Navbar, Nav, NavbarToggler, NavItem, NavbarBrand, Collapse} from 'reactstrap';
 import * as numeral from 'numeral';
 
-
 const ShortHash = (props) => {
 
   if(!props.hash)
@@ -52,8 +51,13 @@ class App extends React.Component {
       wrongwork: [],
       wrongWorkStart: new Date()-8*86400000,
       wrongWorkEnd: new Date()-86400000,
+      transactionSetColors: [],
       coinTicker: "",
       coinId: -1,
+    }
+
+    for(var i = 0; i < 32; i++) {
+      this.state.transactionSetColors.push('#' + Math.floor(Math.random()*16777215).toString(16));
     }
     this.toggle = this.toggle.bind(this);
     this.wrongWorkLater = this.wrongWorkLater.bind(this);
@@ -145,8 +149,18 @@ wrongWorkEarlier() {
   } 
 
   render() {
+
     const selectedCoin = this.state.coins.find((c) => (c.id === parseInt(this.state.coinId))) || {};
     const pools = this.state.pools.filter((p) => p.coinId == this.state.coinId);
+    var transactionSets = [];
+    pools.forEach((p) => {
+      p.observers.forEach((o) => {
+        if(transactionSets.indexOf(o.lastJobMerkleProof) === -1) {
+          transactionSets.push(o.lastJobMerkleProof);
+        }
+      })
+    })
+    transactionSets = transactionSets.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0));
     const locations = this.state.locations.filter((l) => pools.find((p) => p.observers.find((o) => o.locationId === l.id)));
     const prevPools = this.state.prevPools.filter((p) => pools.find((po) => p.id === po.id));
 
@@ -200,6 +214,16 @@ wrongWorkEarlier() {
                           This table shows the pools monitored by PoolDetective for the selected coin ({selectedCoin.name}). <br/>&nbsp;<br/>For each pool it shows the most recent work the pool sent us: both the time it was received, and the hash of the block it's building on top of.<br/>&nbsp;<br/> Under normal circumstances, the block we're building on should be the tip of the {selectedCoin.name} blockchain, which currently is: <code>{selectedCoin.bestHash}</code></p></center>
                         <Container>
                           <Row>
+                            <Col>Transaction sets:</Col>
+                          </Row>
+                          <Row>
+                            {transactionSets.map((ts, i) => 
+                              <Col xs={3} style={{color:this.state.transactionSetColors[i]}}>
+                                <ShortHash hash={ts} left={0} right={8} />
+                              </Col>
+                            )}
+                          </Row>
+                          <Row>
                             <Col>
                               <Table striped>
                                 <thead>
@@ -223,7 +247,19 @@ wrongWorkEarlier() {
                                           const jobTimeDate = ((new Date().valueOf() - new Date(observer.lastJobReceived).valueOf()) > 86400000);
                                           let highlight = observer.highlight;
 
-                                          return <td align="center" className={`${jobHashOk&&jobTimeOk ? 'good' : 'bad'}${highlight ? 'Highlight' : ''}`}><span style={jobTimeOk ? undefined : wrongStyle}><Moment format={jobTimeDate ? "L" : "H:mm:ss.SSS A"}>{new Date(observer.lastJobReceived)}</Moment></span><br/><small style={jobHashOk ? undefined : wrongStyle}><ShortHash left={0} right={8} hash={observer.lastJobPrevHash}></ShortHash></small></td>
+                                          return <td align="center" className={`${jobHashOk&&jobTimeOk ? 'good' : 'bad'}${highlight ? 'Highlight' : ''}`}>
+                                                    <span style={jobTimeOk ? undefined : wrongStyle}>
+                                                      <Moment format={jobTimeDate ? "L" : "H:mm:ss.SSS A"}>{new Date(observer.lastJobReceived)}</Moment>
+                                                    </span>
+                                                    <br/>
+                                                    <small style={jobHashOk ? undefined : wrongStyle}>
+                                                      <ShortHash left={0} right={8} hash={observer.lastJobPrevHash}></ShortHash>
+                                                    </small>
+                                                    <br/>
+                                                    <small style={{color: this.state.transactionSetColors[transactionSets.indexOf(observer.lastJobMerkleProof)]}}>
+                                                      <ShortHash left={0} right={8} hash={observer.lastJobMerkleProof}></ShortHash>
+                                                    </small>
+                                                  </td>
                                         } else {
                                           return <td>&nbsp;</td>
                                         }
