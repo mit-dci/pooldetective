@@ -14,7 +14,13 @@ var upgrader = websocket.Upgrader{
 } // use default options
 
 var websocketsLock sync.Mutex = sync.Mutex{}
-var websockets []*websocket.Conn = []*websocket.Conn{}
+
+type WebSocketConn struct {
+	conn     *websocket.Conn
+	connLock sync.Mutex
+}
+
+var websockets []*WebSocketConn = []*WebSocketConn{}
 
 type websocketMessage struct {
 	Type string      `json:"t"`
@@ -30,7 +36,10 @@ func publishToWebsockets(i interface{}) {
 
 	for _, c := range websockets {
 		if c != nil {
-			err = c.WriteMessage(websocket.TextMessage, b)
+			c.connLock.Lock()
+			err = c.conn.WriteMessage(websocket.TextMessage, b)
+			c.connLock.Unlock()
+
 			if err != nil {
 				log.Printf("send: %v\n", err)
 			}
@@ -46,7 +55,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	websocketsLock.Lock()
-	websockets = append(websockets, c)
+	websockets = append(websockets, &WebSocketConn{conn: c, connLock: sync.Mutex{}})
 	idx := len(websockets) - 1
 	websocketsLock.Unlock()
 
