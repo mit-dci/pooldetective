@@ -47,18 +47,40 @@ td.goodHighlight {
   animation-name: highlightGood;
   animation-duration: 1.5s;
   background-color: #cdffcc;
+  padding: 5px;
 }
 
 td.good {
   background-color: #cdffcc;
+  padding: 5px;
 }
 
 td.badHighlight {
   animation-name: highlightBad;
   animation-duration: 1.5s;
   background-color: #ffcccb;
+  padding: 5px;
 }
 
 td.bad {
-  background-color: #ffcccb
+  background-color: #ffcccb;
+  padding: 5px;
+}
+
+div.time { 
+  font-weight: bold;
+  font-size: 12pt;
+}
+
+div.hashes {
+  font-weight: bold; font-size: 10pt;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+div.hashes > div {
+  padding: 0px 10px;
+  line-height: 15px;
+  border-radius: 6px;
 }

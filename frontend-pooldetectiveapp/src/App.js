@@ -6,10 +6,10 @@ import {
   Route
 } from "react-router-dom";
 import Moment from 'react-moment';
+import {FaClock, FaWallet, FaBuromobelexperte} from 'react-icons/fa';
 import './App.css';
 import {Button, Form, FormGroup, Label, Input, Table, Container, Row, Col, NavLink as RSNavLink, Navbar, Nav, NavbarToggler, NavItem, NavbarBrand, Collapse} from 'reactstrap';
 import * as numeral from 'numeral';
-
 
 const ShortHash = (props) => {
 
@@ -38,6 +38,21 @@ const nameSort = ( a, b ) => {
 
 const wrongStyle = {color:'#ff0000'};
 
+const randDarkColor = function() {
+  var lum = -0.25;
+  var hex = String('#' + Math.random().toString(16).slice(2, 8).toUpperCase()).replace(/[^0-9a-f]/gi, '');
+  if (hex.length < 6) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+  var rgb = "#",
+      c, i;
+  for (i = 0; i < 3; i++) {
+      c = parseInt(hex.substr(i * 2, 2), 16);
+      c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+      rgb += ("00" + c).substr(c.length);
+  }
+  return rgb;
+}
 
 class App extends React.Component {
   constructor(props) {
@@ -54,15 +69,18 @@ class App extends React.Component {
       wrongWorkStart: new Date()-8*86400000,
       wrongWorkEnd: new Date()-86400000,
       emptyBlockWorkStart: new Date(),
+      transactionSetColors: {},
       coinTicker: "",
       coinId: -1,
     }
+
     this.state.emptyBlockWorkStart = new Date(this.state.emptyBlockWorkStart.valueOf() - (this.state.emptyBlockWorkStart.valueOf()%86400000) - 86400000);
     this.toggle = this.toggle.bind(this);
     this.wrongWorkLater = this.wrongWorkLater.bind(this);
     this.wrongWorkEarlier = this.wrongWorkEarlier.bind(this);
     this.emptyBlockWorkLater = this.emptyBlockWorkLater.bind(this);
     this.emptyBlockWorkEarlier = this.emptyBlockWorkEarlier.bind(this);
+    this.updateTransactionSetColors = this.updateTransactionSetColors.bind(this);
 
     this.ws = new WebSocket("wss://pooldetective.org/api/ws");
   
@@ -79,7 +97,7 @@ class App extends React.Component {
                 }
               }
             }
-          })
+          }, this.updateTransactionSetColors)
         } else if (msg.t === 'c') {
           this.setState((state) => {
             for(var i = 0; i < state.coins.length; i++) {
@@ -94,6 +112,21 @@ class App extends React.Component {
     }
 
     this.ws.onmessage = this.ws.onmessage.bind(this);
+  }
+
+ 
+
+  updateTransactionSetColors() {
+    this.setState((s) => {
+      s.pools.forEach((p) => {
+        p.observers.forEach((o) => {
+          if(!s.transactionSetColors[o.lastJobMerkleProof]) {
+            s.transactionSetColors[o.lastJobMerkleProof] = randDarkColor();
+          }
+        })
+      })
+      return s;
+    });
   }
   
   wrongWorkLater() {
@@ -150,7 +183,7 @@ class App extends React.Component {
       })
       coins = coins.sort(nameSort)
       locations = locations.sort(nameSort)
-      this.setState({pools:pools, poolCoins: coins, locations : locations, coinId: coins[0].id})}
+      this.setState({pools:pools, poolCoins: coins, locations : locations, coinId: coins[0].id}, this.updateTransactionSetColors)}
     );
     fetch("https://pooldetective.org/api/public/wrongwork/all").then(r=>r.json()).then((r)=>{
       this.setState({wrongwork:r.map((ww)=> {
@@ -171,8 +204,18 @@ class App extends React.Component {
   } 
 
   render() {
+
     const selectedCoin = this.state.coins.find((c) => (c.id === parseInt(this.state.coinId))) || {};
     const pools = this.state.pools.filter((p) => p.coinId == this.state.coinId);
+    var transactionSets = [];
+    pools.forEach((p) => {
+      p.observers.forEach((o) => {
+        if(transactionSets.indexOf(o.lastJobMerkleProof) === -1) {
+          transactionSets.push(o.lastJobMerkleProof);
+        }
+      })
+    })
+    transactionSets = transactionSets.sort((a,b) => (a > b) ? 1 : ((b > a) ? -1 : 0));
     const locations = this.state.locations.filter((l) => pools.find((p) => p.observers.find((o) => o.locationId === l.id)));
     const prevPools = this.state.prevPools.filter((p) => pools.find((po) => p.id === po.id));
 
@@ -226,7 +269,16 @@ class App extends React.Component {
                       <Container><Row><Col align="left">
                         <center><h1>Current Pool Work</h1>
                         <p>
-                          This table shows the pools monitored by PoolDetective for the selected coin ({selectedCoin.name}). <br/>&nbsp;<br/>For each pool it shows the most recent work the pool sent us: both the time it was received, and the hash of the block it's building on top of.<br/>&nbsp;<br/> Under normal circumstances, the block we're building on should be the tip of the {selectedCoin.name} blockchain, which currently is: <code>{selectedCoin.bestHash}</code></p></center>
+                          This table shows the pools monitored by PoolDetective for the selected coin ({selectedCoin.name}). <br/>&nbsp;<br/>For each pool it shows the most recent work the pool sent us: both the time it was received, and the hash of the block it's building on top of.<br/>&nbsp;<br/> Under normal circumstances, the block we're building on should be the tip of the {selectedCoin.name} blockchain, which currently is: <code>{selectedCoin.bestHash}</code>
+                        </p>
+                         <Container>
+                          <Row>
+                            <Col xs={4}><FaClock /> - The time the last work from this pool was received</Col>
+                            <Col xs={4}><FaBuromobelexperte /> - The hash of the block this pool building on</Col>
+                            <Col xs={4}><FaWallet /> - The hash of the transaction set included in this pool's new block</Col>
+                          </Row>
+                        </Container>
+                        </center>
                         <Container>
                           <Row>
                             <Col>
@@ -252,7 +304,19 @@ class App extends React.Component {
                                           const jobTimeDate = ((new Date().valueOf() - new Date(observer.lastJobReceived).valueOf()) > 86400000);
                                           let highlight = observer.highlight;
 
-                                          return <td align="center" className={`${jobHashOk&&jobTimeOk ? 'good' : 'bad'}${highlight ? 'Highlight' : ''}`}><span style={jobTimeOk ? undefined : wrongStyle}><Moment format={jobTimeDate ? "L" : "H:mm:ss.SSS A"}>{new Date(observer.lastJobReceived)}</Moment></span><br/><small style={jobHashOk ? undefined : wrongStyle}><ShortHash left={0} right={8} hash={observer.lastJobPrevHash}></ShortHash></small></td>
+                                          return <td align="center" className={`${jobHashOk&&jobTimeOk ? 'good' : 'bad'}${highlight ? 'Highlight' : ''}`}>
+                                                    <div className="time" style={jobTimeOk ? undefined : wrongStyle}>
+                                                      <FaClock /> <Moment format={jobTimeDate ? "L" : "h:mm:ss.SSS A"}>{new Date(observer.lastJobReceived)}</Moment>
+                                                    </div>
+                                                    <div className="hashes">
+                                                    <div className="workHashPill" title="The block hash this pool is building on" style={jobHashOk ? undefined : wrongStyle}>
+                                                      <FaBuromobelexperte /> <ShortHash left={0} right={6} hash={observer.lastJobPrevHash}></ShortHash>
+                                                    </div>
+                                                    <div className="workHashPill" title="The transaction set this pool is trying to include in its next block"  style={{color: 'white', backgroundColor: this.state.transactionSetColors[observer.lastJobMerkleProof]}}>
+                                                      <FaWallet /> <ShortHash left={0} right={6} hash={observer.lastJobMerkleProof}></ShortHash>
+                                                    </div>
+                                                    </div>
+                                                  </td>
                                         } else {
                                           return <td>&nbsp;</td>
                                         }

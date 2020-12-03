@@ -1,11 +1,14 @@
 package routes
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/lib/pq"
 )
 
 type PoolResult struct {
@@ -17,14 +20,15 @@ type PoolResult struct {
 }
 
 type PoolObserverResult struct {
-	ID              int64     `json:"id"`
-	StratumHost     string    `json:"stratumHost"`
-	StratumPort     int64     `json:"stratumPort"`
-	LocationID      int64     `json:"locationId"`
-	LocationName    string    `json:"locationName"`
-	LastJobReceived time.Time `json:"lastJobReceived"`
-	LastJobID       int64     `json:"lastJobID"`
-	LastJobPrevHash string    `json:"lastJobPrevHash"`
+	ID                 int64     `json:"id"`
+	StratumHost        string    `json:"stratumHost"`
+	StratumPort        int64     `json:"stratumPort"`
+	LocationID         int64     `json:"locationId"`
+	LocationName       string    `json:"locationName"`
+	LastJobReceived    time.Time `json:"lastJobReceived"`
+	LastJobID          int64     `json:"lastJobID"`
+	LastJobPrevHash    string    `json:"lastJobPrevHash"`
+	LastJobMerkleProof string    `json:"lastJobMerkleProof"`
 }
 
 var poolsHandlerCache []*PoolResult
@@ -33,21 +37,28 @@ var poolsHandlerCacheLastBuilt time.Time = time.Now().Add(-24 * time.Hour)
 
 func UpdatePools() {
 	for {
-		rows, err := db.Query("SELECT po.id, j.id, j.previous_block_hash, po.last_job_received FROM pool_observers po LEFT JOIN jobs j on j.id=po.last_job_id WHERE disabled=false")
+		rows, err := db.Query("SELECT po.id, j.id, j.previous_block_hash, j.merkle_branches, po.last_job_received FROM pool_observers po LEFT JOIN jobs j on j.id=po.last_job_id WHERE disabled=false")
 		if err == nil {
 			for rows.Next() {
 				var id int64
 				var lastJobID int64
 				var lastJobPrevHash []byte
 				var lastJobReceived time.Time
+				var lastJobMerkleBranches pq.ByteaArray
 
-				rows.Scan(&id, &lastJobID, &lastJobPrevHash, &lastJobReceived)
+				rows.Scan(&id, &lastJobID, &lastJobPrevHash, &lastJobMerkleBranches, &lastJobReceived)
+
+				h := [32]byte{}
+				for _, b := range lastJobMerkleBranches {
+					h = sha256.Sum256(append(h[:], b...))
+				}
 
 				for i := range poolsHandlerCache {
 					for j := range poolsHandlerCache[i].PoolObservers {
 						if poolsHandlerCache[i].PoolObservers[j].ID == id && poolsHandlerCache[i].PoolObservers[j].LastJobID != lastJobID {
 							poolsHandlerCache[i].PoolObservers[j].LastJobID = lastJobID
 							poolsHandlerCache[i].PoolObservers[j].LastJobReceived = lastJobReceived
+							poolsHandlerCache[i].PoolObservers[j].LastJobMerkleProof = fmt.Sprintf("%x", h)
 							ph, err := chainhash.NewHash(lastJobPrevHash)
 							if err == nil {
 								poolsHandlerCache[i].PoolObservers[j].LastJobPrevHash = ph.String()
@@ -80,7 +91,7 @@ func poolsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CachePoolData() error {
-	rows, err := db.Query("SELECT p.id, p.name, c.id, c.name, l.id, l.name, po.id, po.stratum_host, po.stratum_port, po.last_job_received, j.id, j.previous_block_hash FROM pools p left join pool_observers po on (po.pool_id=p.id AND (po.disabled=false or po.disabled is null)) left join coins c on c.id=po.coin_id left join jobs j on j.id=po.last_job_id left join locations l on l.id=po.location_id WHERE c.id IS NOT NULL ORDER BY p.name, c.name")
+	rows, err := db.Query("SELECT p.id, p.name, c.id, c.name, l.id, l.name, po.id, po.stratum_host, po.stratum_port, po.last_job_received, j.id, j.previous_block_hash, j.merkle_branches FROM pools p left join pool_observers po on (po.pool_id=p.id AND (po.disabled=false or po.disabled is null)) left join coins c on c.id=po.coin_id left join jobs j on j.id=po.last_job_id left join locations l on l.id=po.location_id WHERE c.id IS NOT NULL ORDER BY p.name, c.name")
 	if err != nil {
 		return err
 	}
@@ -90,6 +101,7 @@ func CachePoolData() error {
 		poolObserverResult := PoolObserverResult{}
 		poolResult := PoolResult{PoolObservers: []*PoolObserverResult{}}
 		lastJobPrevHash := []byte{}
+		var lastJobMerkleBranches pq.ByteaArray
 
 		err := rows.Scan(
 			&poolResult.ID,
@@ -104,6 +116,7 @@ func CachePoolData() error {
 			&poolObserverResult.LastJobReceived,
 			&poolObserverResult.LastJobID,
 			&lastJobPrevHash,
+			&lastJobMerkleBranches,
 		)
 
 		ph, err := chainhash.NewHash(lastJobPrevHash)
@@ -114,6 +127,12 @@ func CachePoolData() error {
 		if err != nil {
 			return err
 		}
+
+		h := [32]byte{}
+		for _, b := range lastJobMerkleBranches {
+			h = sha256.Sum256(append(h[:], b...))
+		}
+		poolObserverResult.LastJobMerkleProof = fmt.Sprintf("%x", h)
 
 		idx := -1
 		for i, p := range results {
