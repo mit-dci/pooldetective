@@ -18,5 +18,7 @@ func AllQueries() []MaintenanceQuery {
 		&PreviousBlockIDQuery{},
 		&JobTimeSpentQuery{},
 		&WrongWorkDailyQuery{},
+		&BlocksPreviousBlockIDQuery{},
+		&EmptyBlockWorkDailyQuery{},
 	}
 }

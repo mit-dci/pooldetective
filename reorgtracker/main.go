@@ -232,8 +232,9 @@ func writeReorg(observed time.Time, forkBlock *BlockHeader, addedBlocks []*Block
 }
 
 func writeBestHash(coinID int, h *chainhash.Hash) error {
-	r, err := db.Exec(`update coins set besthash=$1, besthashobserved=now() where id=$2`,
+	r, err := db.Exec(`update coins set besthash=$1, besthashobserved=$2 where id=$3`,
 		h.CloneBytes(),
+		time.Now().UTC(),
 		coinID,
 	)
 	r.Close()

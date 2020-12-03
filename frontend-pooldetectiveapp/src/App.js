@@ -50,14 +50,19 @@ class App extends React.Component {
       locations: [],
       poolCoins: [],
       wrongwork: [],
+      emptyBlockWork : [],
       wrongWorkStart: new Date()-8*86400000,
       wrongWorkEnd: new Date()-86400000,
+      emptyBlockWorkStart: new Date(),
       coinTicker: "",
       coinId: -1,
     }
+    this.state.emptyBlockWorkStart = new Date(this.state.emptyBlockWorkStart.valueOf() - (this.state.emptyBlockWorkStart.valueOf()%86400000) - 86400000);
     this.toggle = this.toggle.bind(this);
     this.wrongWorkLater = this.wrongWorkLater.bind(this);
     this.wrongWorkEarlier = this.wrongWorkEarlier.bind(this);
+    this.emptyBlockWorkLater = this.emptyBlockWorkLater.bind(this);
+    this.emptyBlockWorkEarlier = this.emptyBlockWorkEarlier.bind(this);
 
     this.ws = new WebSocket("wss://pooldetective.org/api/ws");
   
@@ -91,24 +96,39 @@ class App extends React.Component {
     this.ws.onmessage = this.ws.onmessage.bind(this);
   }
   
-wrongWorkLater() {
-  let wrongWorkStart = this.state.wrongWorkStart+7*86400000
-  if(wrongWorkStart > new Date()-8*86400000) {
-    wrongWorkStart = new Date()-8*86400000
+  wrongWorkLater() {
+    let wrongWorkStart = this.state.wrongWorkStart+7*86400000
+    if(wrongWorkStart > new Date()-8*86400000) {
+      wrongWorkStart = new Date()-8*86400000
+    }
+
+    let wrongWorkEnd = this.state.wrongWorkEnd+7*86400000
+    if(wrongWorkEnd > new Date()-1*86400000) {
+      wrongWorkEnd = new Date()-1*86400000
+    }
+    this.setState({wrongWorkStart,wrongWorkEnd})
   }
 
-  let wrongWorkEnd = this.state.wrongWorkEnd+7*86400000
-  if(wrongWorkEnd > new Date()-1*86400000) {
-    wrongWorkEnd = new Date()-1*86400000
+  wrongWorkEarlier() {
+    let wrongWorkStart = this.state.wrongWorkStart-7*86400000
+    let wrongWorkEnd = this.state.wrongWorkEnd-7*86400000
+    this.setState({wrongWorkStart,wrongWorkEnd})
   }
-  this.setState({wrongWorkStart,wrongWorkEnd})
-}
 
-wrongWorkEarlier() {
-  let wrongWorkStart = this.state.wrongWorkStart-7*86400000
-  let wrongWorkEnd = this.state.wrongWorkEnd-7*86400000
-  this.setState({wrongWorkStart,wrongWorkEnd})
-}
+  emptyBlockWorkLater() {
+    let emptyBlockWorkStart = this.state.emptyBlockWorkStart+86400000
+    if(emptyBlockWorkStart > new Date()-86400000) {
+      emptyBlockWorkStart = new Date()-86400000
+    }
+
+
+    this.setState({emptyBlockWorkStart})
+  }
+
+  emptyBlockWorkEarlier() {
+    let emptyBlockWorkStart = this.state.emptyBlockWorkStart-86400000
+    this.setState({emptyBlockWorkStart})
+  }
 
   componentDidMount() {
     fetch("https://pooldetective.org/api/public/coins").then(r=>r.json()).then((r)=>{
@@ -138,6 +158,12 @@ wrongWorkEarlier() {
         return ww;
       })})
     });
+    fetch("https://pooldetective.org/api/public/emptyblockwork/all").then(r=>r.json()).then((r)=>{
+      this.setState({emptyBlockWork:r.map((ww)=> {
+        ww.observedOn = new Date(ww.observedOn);
+        return ww;
+      })})
+    });
   }
 
   toggle() {
@@ -163,6 +189,9 @@ wrongWorkEarlier() {
             </NavItem>
             <NavItem>
               <RSNavLink tag={NavLink} to="/history">Wrong Pool Work</RSNavLink>
+            </NavItem>
+            <NavItem>
+              <RSNavLink tag={NavLink} to="/empty">Empty Blocks</RSNavLink>
             </NavItem>
             <NavItem> 
               <RSNavLink tag={Button} color="link" href="https://pooldetective.org/">About</RSNavLink>
@@ -239,54 +268,101 @@ wrongWorkEarlier() {
                         </Container>
                         </Col></Row></Container>)} />
                         <Route exact path="/history" render={({history}) => (
-                      <Container><Row><Col align="left">
-                        <center><h1>Wrong Pool Work</h1>
-                          <p>
-                            This table shows when the pools we monitor sent us unexpected work. This is work that builds on top of a previous block that we matched to a different blockchain.
-                            <br/>&nbsp;<br/>
-                          </p>
+                          <Container><Row><Col align="left">
+                            <center><h1>Wrong Pool Work</h1>
+                              <p>
+                                This table shows when the pools we monitor sent us unexpected work. This is work that builds on top of a previous block that we matched to a different blockchain.
+                                <br/>&nbsp;<br/>
+                              </p>
 
-                          <p>
+                              <p>
+                                <Container>
+                                  <Row>
+                                    <Col xs={2}><Button color="link" onClick={this.wrongWorkEarlier}>Earlier</Button></Col>
+                                    <Col><Moment format="LL">{this.state.wrongWorkStart}</Moment> - <Moment format="LL">{this.state.wrongWorkEnd}</Moment></Col>
+                                    <Col xs={2}><Button color="link" onClick={this.wrongWorkLater}>Later</Button></Col>
+                                  </Row>
+                                </Container>
+                              </p>
+                            </center>
                             <Container>
                               <Row>
-                                <Col xs={2}><Button color="link" onClick={this.wrongWorkEarlier}>Earlier</Button></Col>
-                                <Col><Moment format="LL">{this.state.wrongWorkStart}</Moment> - <Moment format="LL">{this.state.wrongWorkEnd}</Moment></Col>
-                                <Col xs={2}><Button color="link" onClick={this.wrongWorkLater}>Later</Button></Col>
+                                <Col>
+                                  <Table striped>
+                                    <thead>
+                                      <tr>
+                                        <th>Date</th>
+                                        <th>Pool</th>
+                                        <th>Location</th>
+                                        <th>Expected coin</th>
+                                        <th>Got coin</th>
+                                        <th>Wrong Jobs</th>
+                                        <th>Time spent</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {this.state.wrongwork.filter((ww) => ww.observedOn.valueOf() >= this.state.wrongWorkStart.valueOf() && ww.observedOn.valueOf() < this.state.wrongWorkEnd.valueOf() && ww.expectedCoinId === selectedCoin.id).map((ww) => <tr>
+                                        <td><Moment format="L">{ww.observedOn}</Moment></td>
+                                        <td>{this.state.pools.find((p) => p.id === ww.poolId).name}</td>
+                                        <td>{ww.location}</td>
+                                        <td>{ww.expectedCoinName}</td>
+                                        <td>{ww.wrongCoinName}</td>
+                                        <td>{ww.wrongJobs} ({numeral(ww.wrongJobs/ww.totalJobs).format('%')})</td>
+                                        <td>{ww.wrongTimeMs/1000} seconds ({numeral(ww.wrongTimeMs/ww.totalTimeMs).format('%')})</td>
+                                      </tr>)}
+                                    </tbody>
+                                  </Table>
+                                </Col>
                               </Row>
                             </Container>
-                          </p>
-                        </center>
-                        <Container>
-                          <Row>
-                            <Col>
-                              <Table striped>
-                                <thead>
-                                  <tr>
-                                    <th>Date</th>
-                                    <th>Pool</th>
-                                    <th>Location</th>
-                                    <th>Expected coin</th>
-                                    <th>Got coin</th>
-                                    <th>Wrong Jobs</th>
-                                    <th>Time spent</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {this.state.wrongwork.filter((ww) => ww.observedOn.valueOf() >= this.state.wrongWorkStart.valueOf() && ww.observedOn.valueOf() < this.state.wrongWorkEnd.valueOf() && ww.expectedCoinId === selectedCoin.id).map((ww) => <tr>
-                                    <td><Moment format="L">{ww.observedOn}</Moment></td>
-                                    <td>{pools.find((p) => p.id === ww.poolId).name}</td>
-                                    <td>{ww.location}</td>
-                                    <td>{ww.expectedCoinName}</td>
-                                    <td>{ww.wrongCoinName}</td>
-                                    <td>{ww.wrongJobs} ({numeral(ww.wrongJobs/ww.totalJobs).format('%')})</td>
-                                    <td>{ww.wrongTimeMs/1000} seconds ({numeral(ww.wrongTimeMs/ww.totalTimeMs).format('%')})</td>
-                                  </tr>)}
-                                </tbody>
-                              </Table>
-                            </Col>
-                          </Row>
-                        </Container>
-                        </Col></Row></Container>)} />
+                            </Col></Row></Container>)} />
+                            <Route exact path="/empty" render={({history}) => (
+                          <Container><Row><Col align="left">
+                            <center><h1>Empty Block Work</h1>
+                              <p>
+                                This table shows how often the pools we monitor sent us work for mining an empty block. This is expected to happen after finding a new block, but should roughly be the same for all pools.
+                                <br/>&nbsp;<br/>
+                              </p>
+
+                              <p>
+                                <Container>
+                                  <Row>
+                                    <Col xs={2}><Button color="link" onClick={this.emptyBlockWorkEarlier}>Earlier</Button></Col>
+                                    <Col><Moment format="LL">{this.state.emptyBlockWorkStart}</Moment></Col>
+                                    <Col xs={2}><Button color="link" onClick={this.emptyBlockWorkLater}>Later</Button></Col>
+                                  </Row>
+                                </Container>
+                              </p>
+                            </center>
+                            <Container>
+                              <Row>
+                                <Col>
+                                  <Table striped>
+                                    <thead>
+                                      <tr>
+                                        <th>Date</th>
+                                        <th>Pool</th>
+                                        <th>Location</th>
+                                        <th>Coin</th>
+                                        <th>Empty Block Jobs</th>
+                                        <th>Empty Block time spent</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {this.state.emptyBlockWork.filter((ebw) => pools.find((p) => p.id === ebw.poolId) && ebw.observedOn.valueOf() >= this.state.emptyBlockWorkStart.valueOf() && ebw.observedOn.valueOf() < this.state.emptyBlockWorkStart.valueOf()+86400000 && ebw.coinId === selectedCoin.id).map((ebw) => <tr>
+                                        <td><Moment format="L">{ebw.observedOn}</Moment></td>
+                                        <td>{pools.find((p) => p.id === ebw.poolId).name}</td>
+                                        <td>{ebw.location}</td>
+                                        <td>{ebw.coinName}</td>
+                                        <td>{ebw.emptyBlockJobs} ({numeral(ebw.emptyBlockJobs/ebw.totalJobs).format('%')})</td>
+                                        <td>{ebw.emptyBlockTimeMs/1000} seconds ({numeral(ebw.emptyBlockTimeMs/ebw.totalTimeMs).format('%')})</td>
+                                      </tr>)}
+                                    </tbody>
+                                  </Table>
+                                </Col>
+                              </Row>
+                            </Container>
+                            </Col></Row></Container>)} />
                     </Switch>
                 </Col>
               </Row>
