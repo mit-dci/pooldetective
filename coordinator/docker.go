@@ -159,7 +159,7 @@ func checkBlockObserver() error {
 			fmt.Sprintf("COMM_ENC_KEY=%s", os.Getenv("COMM_ENC_KEY")),
 		}
 
-		c, err := dockerClient.ContainerCreate(context.Background(), containerConfig, nil, nil, name)
+		c, err := dockerClient.ContainerCreate(context.Background(), containerConfig, nil, nil, nil, name)
 		if err != nil {
 			return err
 		}
@@ -235,7 +235,7 @@ func checkStratumClient(poolObserverID int) error {
 			fmt.Sprintf("COMM_ENC_KEY=%s", os.Getenv("COMM_ENC_KEY")),
 		}
 
-		c, err := dockerClient.ContainerCreate(context.Background(), containerConfig, nil, nil, name)
+		c, err := dockerClient.ContainerCreate(context.Background(), containerConfig, nil, nil, nil, name)
 		if err != nil {
 			return err
 		}
@@ -352,7 +352,7 @@ func checkStratumServer(algorithmID, port, stratumProtocol int) error {
 			},
 		}
 
-		c, err := dockerClient.ContainerCreate(context.Background(), containerConfig, hostConfig, nil, name)
+		c, err := dockerClient.ContainerCreate(context.Background(), containerConfig, hostConfig, nil, nil, name)
 		if err != nil {
 			return err
 		}
