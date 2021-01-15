@@ -23,7 +23,7 @@ docker build . -f "Dockerfile.base" -t "$TAG_PREFIX-base"
 for prod in $BUILD 
 do
     echo "Building $prod"
-    docker build . -f "Dockerfile.$prod" -t "$TAG_PREFIX-$prod"
+    docker build --build-arg baseimage="$TAG_PREFIX-base" . -f "Dockerfile.$prod" -t "$TAG_PREFIX-$prod"
     if [ ! -z "$DOCKER_REGISTRY" ]; then
         docker push "$TAG_PREFIX-$prod"
     fi
