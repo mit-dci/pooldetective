@@ -31,7 +31,7 @@ SELECT
 		left join coins c on c.id=b.coin_id
 		left join locations l on l.id=po.location_id
 		LEFT JOIN (SELECT COUNT(*) as totaljobs, SUM(time_spent_msec) as totaltime, pool_observer_id, observed::date FROM jobs WHERE observed::date > COALESCE((SELECT max(observed_on) FROM analysis_empty_block_work_daily), '2019-01-01'::date) AND observed < NOW()::date GROUP BY pool_observer_id, observed::date) tj on tj.pool_observer_id=j.pool_observer_id and tj.observed=j.observed::date
-	WHERE l.id=2 AND j.observed::date > COALESCE((SELECT max(observed_on) FROM analysis_empty_block_work_daily), '2019-01-01'::date) AND j.observed < NOW()::date AND CARDINALITY(j.merkle_branches) = 0
+	WHERE l.id=2 AND j.observed::date > COALESCE((SELECT max(observed_on) FROM analysis_empty_block_work_daily), '2019-01-01'::date) AND j.observed < NOW()::date AND j.merkle_branches IS NULL
 	GROUP BY 
 	p.id ,
 		po.id ,

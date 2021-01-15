@@ -20,8 +20,6 @@ func (q *ForkBlocksQuery) SQL() string {
 		fork_height integer NOT NULL,
 		next_fork_height integer,
 		CONSTRAINT analysis_fork_blocks_new_pkey PRIMARY KEY (coin_id, fork_block_hash),
-		CONSTRAINT analysis_fork_blocks_new_fkey_coin FOREIGN KEY (coin_id)
-			REFERENCES public.coins (id) MATCH SIMPLE
 			ON UPDATE NO ACTION
 			ON DELETE NO ACTION
 	);
@@ -40,8 +38,6 @@ func (q *ForkBlocksQuery) SQL() string {
 	
 	ALTER TABLE public.analysis_fork_blocks
 	  RENAME CONSTRAINT analysis_fork_blocks_new_pkey TO analysis_fork_blocks_pkey;
-	ALTER TABLE public.analysis_fork_blocks
-	  RENAME CONSTRAINT analysis_fork_blocks_new_fkey_coin TO analysis_fork_blocks_fkey_coin;
 	
 	COMMIT;`
 }

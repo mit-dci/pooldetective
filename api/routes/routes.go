@@ -17,8 +17,8 @@ var db *sql.DB
 func DefineRoutes(r *mux.Router, passedDb *sql.DB) {
 	db = passedDb
 
-	// Define a limit rate to 12 requests per minute for anonymous requests
-	anonRate, err := limiter.NewRateFromFormatted("12-M")
+	// Define a limit rate to 120 requests per minute for anonymous requests
+	anonRate, err := limiter.NewRateFromFormatted("120-M")
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -27,8 +27,8 @@ func DefineRoutes(r *mux.Router, passedDb *sql.DB) {
 	anonLimiter := limiter.New(anonStore, anonRate)
 	anonLimiterMiddleware := stdlib.NewMiddleware(anonLimiter)
 
-	// Define a limit rate to 120 requests per minute for authenticated requests
-	authRate, err := limiter.NewRateFromFormatted("120-M")
+	// Define a limit rate to 1200 requests per minute for authenticated requests
+	authRate, err := limiter.NewRateFromFormatted("1200-M")
 	if err != nil {
 		log.Fatal(err)
 		return

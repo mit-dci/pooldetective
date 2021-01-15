@@ -47,24 +47,24 @@ td.goodHighlight {
   animation-name: highlightGood;
   animation-duration: 1.5s;
   background-color: #cdffcc;
-  padding: 5px;
+  padding: 10px 0px;
 }
 
 td.good {
   background-color: #cdffcc;
-  padding: 5px;
+  padding: 10px 0px;
 }
 
 td.badHighlight {
   animation-name: highlightBad;
   animation-duration: 1.5s;
   background-color: #ffcccb;
-  padding: 5px;
+  padding: 10px 0px;
 }
 
 td.bad {
   background-color: #ffcccb;
-  padding: 5px;
+  padding: 10px 0px;
 }
 
 div.time { 
@@ -73,14 +73,19 @@ div.time {
 }
 
 div.hashes {
-  font-weight: bold; font-size: 10pt;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-div.hashes > div {
+div.workHashPill {
   padding: 0px 10px;
   line-height: 15px;
   border-radius: 6px;
+  font-weight: bold; font-size: 10pt;
+  background-color: #80ff80;
+}
+
+div.container.legend {
+  font-size: 9pt;
 }

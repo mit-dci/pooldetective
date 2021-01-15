@@ -64,9 +64,9 @@ func reorgsHandler(w http.ResponseWriter, r *http.Request) {
 										r.removed_total_chainwork, 
 										r.added_total_chainwork, 
 										r.total_generated_coins, 
-										r.bitcoin_price, 
-										r.nicehash_price, 
-										r.currency_price,
+										COALESCE(r.bitcoin_price,0), 
+										COALESCE(r.nicehash_price,0), 
+											COALESCE(r.currency_price,0),
 										COALESCE((SELECT nicehash_marketfactor FROM algorithms WHERE id=c.algorithm_id), 1) as market_factor,
 										COALESCE(r.fork_block_height,-1)
 									FROM 
@@ -84,6 +84,7 @@ func reorgsHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			defer rows.Close()
 			for rows.Next() {
 				var r ReorgResult
 

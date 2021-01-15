@@ -36,7 +36,7 @@ const nameSort = ( a, b ) => {
   return 0;
 }
 
-const wrongStyle = {color:'#ff0000'};
+const wrongStyle = {backgroundColor:'#ffa0a0', color:'#ff0000'};
 
 const randDarkColor = function() {
   var lum = -0.25;
@@ -267,11 +267,11 @@ class App extends React.Component {
                     <Switch>
                       <Route exact path="/" render={({history}) => (
                       <Container><Row><Col align="left">
-                        <center><h1>Current Pool Work</h1>
+                        <center><h3>Current Pool Work</h3>
                         <p>
-                          This table shows the pools monitored by PoolDetective for the selected coin ({selectedCoin.name}). <br/>&nbsp;<br/>For each pool it shows the most recent work the pool sent us: both the time it was received, and the hash of the block it's building on top of.<br/>&nbsp;<br/> Under normal circumstances, the block we're building on should be the tip of the {selectedCoin.name} blockchain, which currently is: <code>{selectedCoin.bestHash}</code>
+                          This table shows the pools monitored by PoolDetective for the selected coin ({selectedCoin.name}). <br/>Under normal circumstances, the pools should be building on the tip of the {selectedCoin.name} blockchain, which currently ends with: <div class="workHashPill" style={{display:'inline-block'}}><ShortHash left={0} right={6} hash={selectedCoin.bestHash}/></div>
                         </p>
-                         <Container>
+                         <Container className="legend">
                           <Row>
                             <Col xs={4}><FaClock /> - The time the last work from this pool was received</Col>
                             <Col xs={4}><FaBuromobelexperte /> - The hash of the block this pool building on</Col>
@@ -333,10 +333,9 @@ class App extends React.Component {
                         </Col></Row></Container>)} />
                         <Route exact path="/history" render={({history}) => (
                           <Container><Row><Col align="left">
-                            <center><h1>Wrong Pool Work</h1>
+                            <center><h3>Wrong Pool Work</h3>
                               <p>
                                 This table shows when the pools we monitor sent us unexpected work. This is work that builds on top of a previous block that we matched to a different blockchain.
-                                <br/>&nbsp;<br/>
                               </p>
 
                               <p>
@@ -382,10 +381,9 @@ class App extends React.Component {
                             </Col></Row></Container>)} />
                             <Route exact path="/empty" render={({history}) => (
                           <Container><Row><Col align="left">
-                            <center><h1>Empty Block Work</h1>
+                            <center><h3>Empty Block Work</h3>
                               <p>
                                 This table shows how often the pools we monitor sent us work for mining an empty block. This is expected to happen after finding a new block, but should roughly be the same for all pools.
-                                <br/>&nbsp;<br/>
                               </p>
 
                               <p>
