@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e 
 
 BUILD="api apidocs frontend dbqueries coordinator coordinatorhost blockfetcher blockobserver blockobserverhost stratumclient stratumclienthost stratumserver pubsubhost"
 echo "Argument: [$1]"
