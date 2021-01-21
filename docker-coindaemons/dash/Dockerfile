@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME dashcore-0.15.0.0-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://github.com/dashpay/dash/releases/download/v0.15.0.0/$FILENAME
 

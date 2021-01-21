@@ -1,5 +1,6 @@
 FROM ubuntu:latest
 RUN apt-get update && apt-get -y install wget 
+ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /tmp
 RUN wget https://github.com/velescore/veles/releases/download/v0.18.1.3/veles-0.18.1.3-debian-ubuntu-amd64.tar.gz
 RUN tar -xvf veles-0.18.1.3-debian-ubuntu-amd64.tar.gz

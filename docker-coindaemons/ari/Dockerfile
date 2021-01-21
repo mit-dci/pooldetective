@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM rgrubba/debian-squeeze as build-env
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install libdb4.8-dev libdb4.8++-dev libssl-dev libevent-dev  libboost-all-dev git apt-utils build-essential libtool autotools-dev automake pkg-config bsdmainutils curl cmake libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools imagemagick
 RUN mkdir /sources && cd /sources && git clone https://github.com/AricoinCurrency/Aricoin
 RUN apt-get -y install libminiupnpc-dev

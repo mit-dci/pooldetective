@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM ubuntu:18.04
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile
 

@@ -13,7 +13,7 @@ ENV TERM linux
 ENV USER decred
 ENV HOME /home/$USER
 ENV DOTDCRD $HOME/.dcrd
-
+ARG DEBIAN_FRONTEND=noninteractive
 # create user
 RUN adduser --disabled-password --gecos '' $USER
 

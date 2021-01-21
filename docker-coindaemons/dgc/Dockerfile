@@ -4,7 +4,7 @@ LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
 
 ENV FILENAME dashcore-0.15.0.0-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://github.com/dashpay/dash/releases/download/v0.15.0.0/$FILENAME
-
+ARG DEBIAN_FRONTEND=noninteractive
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile
 

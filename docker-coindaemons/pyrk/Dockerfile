@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME pyrk-0.12.4.6-linux64.tar.gz
 ENV DOWNLOAD_URL https://github.com/pyrkcommunity/pyrk/releases/download/v0.12.4.6/${FILENAME}
 

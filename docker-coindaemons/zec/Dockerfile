@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME zcash-4.1.0-linux64-debian-stretch.tar.gz
 ENV DOWNLOAD_URL https://z.cash/downloads/${FILENAME}
 

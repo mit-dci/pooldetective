@@ -1,14 +1,14 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME axecore-1.5.0.1-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://github.com/AXErunners/axe/releases/download/v1.5.0.1/${FILENAME}
 
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile
 
-RUN apt-get update && apt-get -y install wget unzip && mkdir /download \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install wget unzip && mkdir /download \
   && cd /download \
   && wget $DOWNLOAD_URL \
   && tar -xvf $FILENAME \

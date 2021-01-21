@@ -3,7 +3,7 @@ FROM alpine
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
 
 ARG GLIBC_VERSION=2.29-r0
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME bitcoin-cash-node-22.1.0-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v22.1.0/$FILENAME
 

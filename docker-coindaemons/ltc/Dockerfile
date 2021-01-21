@@ -3,7 +3,7 @@ FROM alpine
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
 
 ARG GLIBC_VERSION=2.29-r0
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME litecoin-0.17.1-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://download.litecoin.org/litecoin-0.17.1/linux/${FILENAME}
 

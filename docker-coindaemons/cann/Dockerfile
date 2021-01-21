@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME cannabiscoin-0.13.1-linux64.tar.gz
 ENV DOWNLOAD_URL https://github.com/cannabiscoindev/cannabiscoin420/releases/download/v0.13.1/${FILENAME}
 

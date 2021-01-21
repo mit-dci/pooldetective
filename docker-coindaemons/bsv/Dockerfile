@@ -6,7 +6,7 @@ ARG GLIBC_VERSION=2.29-r0
 
 ENV FILENAME bitcoin-sv-1.0.4-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://download.bitcoinsv.io/bitcoinsv/1.0.4/${FILENAME}
-
+ARG DEBIAN_FRONTEND=noninteractive
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile
 

@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM ubuntu:18.04
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME ImageCoin_linux_32_64.tar.xz
 ENV DOWNLOAD_URL https://github.com/mceme/ImageCoin/releases/download/1.0.33/${FILENAME}
 

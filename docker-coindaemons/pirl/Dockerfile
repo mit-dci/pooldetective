@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME pirl-linux-amd64-1.8.27-damocles.tar.gz
 ENV DOWNLOAD_URL https://git.pirl.io/community/pirl/uploads/b05e46f46d2a5e843d02cac13ef64c3d/${FILENAME}
 

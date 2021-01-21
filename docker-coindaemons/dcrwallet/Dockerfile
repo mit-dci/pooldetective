@@ -16,7 +16,7 @@ ENV DOTDCRD $HOME/.dcrd
 
 # create user
 RUN adduser --disabled-password --gecos '' $USER
-
+ARG DEBIAN_FRONTEND=noninteractive
 RUN set -x && \
 
     # Update base distro & install build tooling

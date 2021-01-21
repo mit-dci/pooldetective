@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME raven-4.3.1.0-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://github.com/RavenProject/Ravencoin/releases/download/v4.3.1/${FILENAME}
 

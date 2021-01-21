@@ -1,9 +1,9 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
-ENV FILENAME vertcoind-v0.14.0-linux-amd64.zip
-ENV DOWNLOAD_URL https://github.com/vertcoin-project/vertcoin-core/releases/download/0.14.0/${FILENAME}
+ARG DEBIAN_FRONTEND=noninteractive
+ENV FILENAME vertcoind-v0.17.1-linux-amd64.zip
+ENV DOWNLOAD_URL https://github.com/vertcoin-project/vertcoin-core/releases/download/0.17.1/${FILENAME}
 
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile

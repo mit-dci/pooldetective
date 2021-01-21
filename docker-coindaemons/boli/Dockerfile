@@ -5,7 +5,7 @@ LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
 
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile
-
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y libzmq3-dev libboost-all-dev
 RUN apt-get install -y software-properties-common
 RUN apt-get install -y build-essential libssl-dev libboost-all-dev libqrencode-dev libminiupnpc-dev

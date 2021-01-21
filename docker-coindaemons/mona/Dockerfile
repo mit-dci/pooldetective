@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME monacoin-0.17.1-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://github.com/monacoinproject/monacoin/releases/download/monacoin-0.17.1/${FILENAME}
 

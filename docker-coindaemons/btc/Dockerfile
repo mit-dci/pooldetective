@@ -6,7 +6,7 @@ ARG GLIBC_VERSION=2.29-r0
 
 ENV FILENAME bitcoin-0.19.0.1-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://bitcoin.org/bin/bitcoin-core-0.19.0.1/${FILENAME}
-
+ARG DEBIAN_FRONTEND=noninteractive
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile
 

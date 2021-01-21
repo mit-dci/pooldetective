@@ -7,7 +7,7 @@ ENV DOWNLOAD_URL https://github.com/digibyte/digibyte/releases/download/v7.17.2/
 
 # Some of this was unabashadly yanked from
 # https://github.com/szyhf/DIDockerfiles/blob/master/bitcoin/alpine/Dockerfile
-
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y install wget unzip && mkdir /download \
   && cd /download \
   && wget $DOWNLOAD_URL \

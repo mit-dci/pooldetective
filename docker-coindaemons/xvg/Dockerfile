@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-
+ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 
 # Basic env setup

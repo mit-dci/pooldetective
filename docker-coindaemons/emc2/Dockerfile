@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME EinsteiniumLightsaber-linux.tar.gz
 ENV DOWNLOAD_URL https://download.emc2.foundation/wallets/${FILENAME}
 

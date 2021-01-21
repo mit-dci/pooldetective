@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME linux-x64.tar.gz
 ENV DOWNLOAD_URL https://github.com/Emrals/emrals/releases/download/v0.12.2.5.2/${FILENAME}
 

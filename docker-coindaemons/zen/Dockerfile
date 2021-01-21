@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME zen-2.0.21-1-amd64.deb
 ENV DOWNLOAD_URL https://github.com/HorizenOfficial/zen/releases/download/v2.0.21-1/${FILENAME}
 

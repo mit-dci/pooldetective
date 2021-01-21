@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stable-slim
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME flo-0.15.1-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL  https://github.com/floblockchain/flo/releases/download/v0.15.1.1/${FILENAME}
 

@@ -1,4 +1,5 @@
 FROM ubuntu:latest
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y install wget 
 WORKDIR /tmp
 RUN wget https://github.com/kzcashteam/kzcash/releases/download/v0.1.9.1/kzcash-0.1.9.1-cli-linux-ubuntu1604.tar.gz

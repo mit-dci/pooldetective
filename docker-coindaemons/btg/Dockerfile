@@ -3,7 +3,7 @@ FROM alpine
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
 
 ARG GLIBC_VERSION=2.29-r0
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME bitcoin-gold-0.15.2-x86_64-linux-gnu.tar.gz
 ENV DOWNLOAD_URL https://github.com/BTCGPU/BTCGPU/releases/download/v0.15.2/bitcoin-gold-0.15.2-x86_64-linux-gnu.tar.gz
 

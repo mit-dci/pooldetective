@@ -1,7 +1,7 @@
 ## Original from: https://github.com/jamesob/docker-bitcoind
 FROM debian:stretch
 LABEL MAINTAINER="Gert-Jaap Glasbergen <gertjaap@mit.edu>"
-
+ARG DEBIAN_FRONTEND=noninteractive
 ENV FILENAME pacglobal-v0.14.0.6-d6fbc8bb24-legacylin64.tgz
 ENV DOWNLOAD_URL https://github.com/PACGlobalOfficial/PAC/releases/download/d6fbc8bb24/${FILENAME}
 
