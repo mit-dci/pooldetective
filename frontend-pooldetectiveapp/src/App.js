@@ -256,7 +256,7 @@ class App extends React.Component {
                 <NavItem style={{width: 300}}>
                   <Container>
                   <Row><Label xs={12}>
-                    Tip: <ShortHash left={0} right={8} hash={selectedCoin.bestHash}></ShortHash> (<Moment format="LTS">{selectedCoin.bestHashObserved}</Moment>)
+                    Tip: <ShortHash left={0} right={6} hash={selectedCoin.bestHash}></ShortHash> (<Moment format="LTS">{selectedCoin.bestHashObserved}</Moment>)
                   </Label></Row>
                   </Container>
                 </NavItem>
